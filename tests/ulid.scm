@@ -27,9 +27,12 @@
     (check (< 0 n (expt 2 128)) => #t)
     (check (ulid=? u (integer->ulid n)) => #t))
 
-  ;; uniqueness
-  (let ((us (list (g) (g))))
-    (check (ulid=? (car us) (cadr us)) => #f)
-    (check (ulid<? (car us) (cadr us)) => #t)
-    (check (ulid<? (cadr us) (car us)) => #f))
+  ;; uniqueness & ordering
+  (let* ((u1 (g))
+         (u2 (g)))
+    (check (ulid=? u1 u2) => #f)
+    (check (ulid<? u1 u2) => #t)
+    (check (ulid<? u2 u1) => #f))
   )
+
+(check-report)
