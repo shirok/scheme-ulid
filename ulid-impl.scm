@@ -116,13 +116,13 @@
 
 ;; API
 (define (integer->ulid n)
-  (assume (and (exact? n) (positive? n 0) (< n (expt 2 128))))
-  (%make-uuid (arithmetic-shift n -80)
+  (assume (and (exact? n) (positive? n) (< n (expt 2 128))))
+  (%make-ulid (arithmetic-shift n -80)
               (bitwise-and n (- (expt 2 80) 1))))
 
 ;; API
 (define (string->ulid s)
-  (assume (and (string? s) (string-length s 26)))
+  (assume (and (string? s) (= (string-length s) 26)))
   (let ((val
          (string-fold (lambda (ch n)
                         (let ((d (vector-index (lambda (c) (char-ci=? ch c))
