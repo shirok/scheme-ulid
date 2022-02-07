@@ -80,6 +80,37 @@
       ((= i 26) (list->string cs))))
 
 
+;; API
+(define (u8vector->ulid uv)
+  (define (get-uint start size)
+    (do ((i start (+ i 1))
+         (size size (- size 1))
+         (v 0 (+ (arithmetic-shift v 8) (u8vector-ref uv i))))
+        ((zero? size) v)))
+  (assume (and (u8vector? uv) (= (u8vector-length uv) 16)))
+  (%make-ulid (get-uint 0 6) (get-uint 6 10)))
+
+;; API
+(define (integer->ulid n)
+  (assume (and (exact? n) (positive? n 0) (< n (expt 2 128))))
+  (%make-uuid (arithmetic-shift n -80)
+              (bitwise-and n (- (expt 2 80) 1))))
+
+;; API
+(define (string->ulid s)
+  (assume (and (string? s) (string-length s 26)))
+  (let ((val
+         (string-fold (lambda (ch n)
+                        (let ((d (vector-index (lambda (c) (char-ci=? ch c))
+                                               *digits*)))
+                          (unless d
+                            (error "Invalid character as ULID:" ch))
+                          (+ (arithmetic-shift n 5) d)))
+                      0 s)))
+    (when (>= val (expt 2 128))
+      (error "ULID string representation out of range:" s))
+    (integer->ulid val)))
+
 ;; Fancier printing, if possible
 (cond-expand
  (gauche

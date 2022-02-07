@@ -43,3 +43,14 @@ when importing existing data keeping timestamp part.
 ```
 
 Convert ULID to a string, a u8vector, or an exact integer, respectively.
+
+```
+(string->ulid "01FV9V6CVKT28VPQ12NTFFDSZ1")
+  ;⇒ #<ulid>
+(u8vector->ulid '#u8(1 126 211 179 51 115 208 145 187 92 34 174 158 246 231 225))
+  ;⇒ #<ulid>
+(integer->ulid 1987751186151511620525844062631552993)
+  ;⇒ #<ulid>
+```
+
+Convert a string, a u8vector, or an exact integer to ULID, respectively.

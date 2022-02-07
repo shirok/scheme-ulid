@@ -1,7 +1,10 @@
 (define-library (ulid)
   (import (scheme base)
+          (scheme char)
+          (scheme vector)
           (scheme vector u8)
           (scheme bitwise)
+          (srfi 13)                     ;string
           (srfi 19)                     ;time & date
           (srfi 27)                     ;random
           (srfi 145)                    ;assume
@@ -17,5 +20,8 @@
           ulid-randomness
           ulid->string
           ulid->integer
-          ulid->u8vector)
+          ulid->u8vector
+          string->ulid
+          integer->ulid
+          u8vector->ulid)
   (include "ulid.scm"))
