@@ -7,7 +7,10 @@ Requires the following libraries:
 
 - `(scheme base)`
 - `(scheme bitwise)`
+- `(scheme comparator)`
+- `(scheme vector)`
 - `(scheme vector u8)`
+- `(srfi 13)`  (string)
 - `(srfi 19)`  (time & date)
 - `(srfi 27)`  (random numbers)
 - `(srfi 145)`  (assumptions)
@@ -54,3 +57,17 @@ Convert ULID to a string, a u8vector, or an exact integer, respectively.
 ```
 
 Convert a string, a u8vector, or an exact integer to ULID, respectively.
+
+```
+(ulid=? ulid1 ulid2)
+(ulid<? ulid1 ulid2)
+(ulid-hash ulid)
+```
+
+Equality predicate, ordering predicate, and hash function.
+
+```
+ulid-comparator
+```
+
+A comparator suitable for ULID.

@@ -43,6 +43,30 @@
         (%make-ulid ts rn)))))
 
 ;; API
+(define (ulid=? u1 u2)
+  (assume (ulid? u1))
+  (assume (ulid? u2))
+  (and (= (ulid-timestamp u1) (ulid-timestamp u2))
+       (= (ulid-randomness u1) (ulid-randomness u2))))
+
+;; API
+(define (ulid<? u1 u2)
+  (assume (ulid? u1))
+  (assume (ulid? u2))
+  (or (< (ulid-timestamp u1) (ulid-timestamp u2))
+      (and (= (ulid-timestamp u1) (ulid-timestamp u2))
+           (< (ulid-randomness u1) (ulid-randomness u2)))))
+
+;; API
+(define (ulid-hash u)
+  (bitwise-xor (default-hash (ulid-timestamp u))
+               (default-hash (ulid-randomness u))))
+
+;; API
+(define ulid-comparator
+  (make-comparator ulid? ulid=? ulid<? ulid-hash))
+
+;; API
 (define (ulid->u8vector ulid)
   (assume (ulid? ulid))
   (let ((uv (make-u8vector 16))

@@ -1,9 +1,10 @@
 (define-library (ulid)
   (import (scheme base)
           (scheme char)
+          (scheme comparator)
+          (scheme bitwise)
           (scheme vector)
           (scheme vector u8)
-          (scheme bitwise)
           (srfi 13)                     ;string
           (srfi 19)                     ;time & date
           (srfi 27)                     ;random
@@ -18,10 +19,14 @@
           ulid?
           ulid-timestamp
           ulid-randomness
+          ulid=?
+          ulid<?
+          ulid-hash
+          ulid-comparator
           ulid->string
           ulid->integer
           ulid->u8vector
           string->ulid
           integer->ulid
           u8vector->ulid)
-  (include "ulid.scm"))
+  (include "ulid-impl.scm"))
