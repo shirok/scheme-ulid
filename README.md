@@ -14,8 +14,7 @@ Requires the following libraries:
 - `(srfi 19)`  (time & date)
 - `(srfi 27)`  (random numbers)
 - `(srfi 145)`  (assumptions)
-- `(srfi 227)`  (optional arguments)
-- `(srfi 227 definitions)`
+- `(srfi 227)`  (optional arguments) - Optional
 
 ## Usage
 
@@ -31,9 +30,18 @@ is passed, `default-random-source` is used.
 (gen-ulid)  ;⇒ #<ulid>
 ```
 
-Creates an ULID object.  You can retrieve its timestamp and randomness
+Calling the generator procedure created with `make-ulid-generator`
+returns a new ULID object.  You can retrieve its timestamp and randomness
 fields by `ulid-timestamp` and `ulid-randomness`, both in exact
 nonnegative integers, respectively.
+
+Note: According to ULID spec, if more than one ULID is generated within
+the same millisecond timestamp, the subsequent ULIDs gets randomness
+field incremented from the previous one.  There's a extremely small chance
+that the randomness field overflows, in such case ULID spec says the generation
+fails.  Our implementation wait for the next millisecond timestamp instead.
+Theoretically this will be an issue if the caller wants to generate
+close to 2^80 ULIDs per milliseconds constantly; in reality it's very unlikely.
 
 The ULID generator can take an optional timestamp argument; it is useful
 when importing existing data keeping timestamp part.
@@ -71,3 +79,17 @@ ulid-comparator
 ```
 
 A comparator suitable for ULID.
+
+## Testing
+
+Run `tests/ulid.scm`.  For Gauche, you can run `tests/gauche.scm`.
+
+## Installation
+
+Copy `ulid.sld` and `ulid-impl.scm` to wherever your load-path can see.
+
+## Porting
+
+There're a couple of `cond-expand` in `ulid-impl.scm` that an implementation
+may have better ways than the portable code.  Feel free to add your
+implementation-specific support and send me PR.

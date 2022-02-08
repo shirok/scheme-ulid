@@ -26,6 +26,8 @@
 
 
 ;; Obtain milliseconds from Unix Epoch.
+;; NB: If srfi-170 (POSIX API) becomes widespread, we may use posix-time
+;; portably.
 (cond-expand
  (gauche
   (define (milliseconds-from-epoch)
@@ -40,6 +42,21 @@
           (+ (* (time-second dt) 1000)
              (quotient (time-nanosecond dt) 1000000))))))))
 
+;; Wait for a bit.
+;; If the implementation have system interface to wait around 0.5ms,
+;; use that.    Otherwise, we have no choice but spend time with wasteful
+;; calculation and busy loop.  RI is a random integer generator so
+;; call it to kill some time.  This routine is called in extremely
+;; rare event.
+(cond-expand
+ (gauche
+  (define (wait-a-bit ri) (sys-nanosleep 500000)))
+ (else
+  (define (wait-a-bit ri)
+    (do ((n 0 (+ n 1)))
+        ((= n 10))
+      (ri *randomness-range*)))))
+
 (define *randomness-range* (expt 2 80))
 (define *digits* (string->vector "0123456789ABCDEFGHJKMNPQRSTVWXYZ"))
 
@@ -50,20 +67,28 @@
   (randomness ulid-randomness))
 
 ;; API
-(define-optionals (make-ulid-generator (random-source default-random-source))
+;; NB: The ULID spec says ULID generation may fail if randomness is very close
+;; to 2^80 and lots of ULIDs are generated in the same millisecond, causing
+;; randomness field to overflow.  We can, however, wait just one millisecond
+;; to overcome that situation.
+(define-optionals* (make-ulid-generator (random-source default-random-source))
   (let ((randomness (random-source-make-integers random-source))
         (last-ts 0)
         (last-rn 0))
-    (opt-lambda ((timestamp #f))
-      (let* ((ts (or timestamp (milliseconds-from-epoch)))
-             (rn (if (= ts last-ts)
-                   (if (= last-rn (- *randomness-range* 1))
-                     (error "No more ULID in the same timestamp")
-                     (+ last-rn 1))
-                   (randomness *randomness-range*))))
-        (set! last-ts ts)
-        (set! last-rn rn)
-        (%make-ulid ts rn)))))
+    (define (make-it ts rn)
+      (set! last-ts ts)
+      (set! last-rn rn)
+      (%make-ulid ts rn))
+    (opt*-lambda ((timestamp #f))
+      (let retry ()
+        (let ((ts (or timestamp (milliseconds-from-epoch))))
+          (if (not (= ts last-ts))
+            (make-it ts (randomness *randomness-range*))
+            (if (< last-rn (- *randomness-range* 1))
+              (make-it ts (+ last-rn 1))
+              (begin
+                (wait-a-bit randomness)
+                (retry)))))))))
 
 ;; API
 (define (ulid=? u1 u2)
