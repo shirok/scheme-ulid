@@ -9,7 +9,6 @@ Requires the following libraries:
 - `(scheme bitwise)`
 - `(scheme comparator)`
 - `(scheme vector)`
-- `(scheme vector u8)`
 - `(srfi 13)`  (string)
 - `(srfi 19)`  (time & date)
 - `(srfi 27)`  (random numbers)
@@ -49,22 +48,22 @@ when importing existing data keeping timestamp part.
 ```
 (define u (gen-ulid))
 (ulid->string u)   ;⇒ "01FV9V6CVKT28VPQ12NTFFDSZ1"
-(ulid->u8vector u) ;⇒ #u8(1 126 211 179 51 115 208 145 187 92 34 174 158 246 231 225)
+(ulid->bytevector u) ;⇒ #u8(1 126 211 179 51 115 208 145 187 92 34 174 158 246 231 225)
 (ulid->integer u)  ;⇒ 1987751186151511620525844062631552993
 ```
 
-Convert ULID to a string, a u8vector, or an exact integer, respectively.
+Convert ULID to a string, a bytevector, or an exact integer, respectively.
 
 ```
 (string->ulid "01FV9V6CVKT28VPQ12NTFFDSZ1")
   ;⇒ #<ulid>
-(u8vector->ulid '#u8(1 126 211 179 51 115 208 145 187 92 34 174 158 246 231 225))
+(bytevector->ulid '#u8(1 126 211 179 51 115 208 145 187 92 34 174 158 246 231 225))
   ;⇒ #<ulid>
 (integer->ulid 1987751186151511620525844062631552993)
   ;⇒ #<ulid>
 ```
 
-Convert a string, a u8vector, or an exact integer to ULID, respectively.
+Convert a string, a bytevector, or an exact integer to ULID, respectively.
 
 ```
 (ulid=? ulid1 ulid2)

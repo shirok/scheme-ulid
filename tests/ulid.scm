@@ -3,8 +3,6 @@
 (import (srfi 19))                      ;time & date
 (import (srfi 78))                      ;check
 
-(import (scheme vector u8))
-
 (define g (make-ulid-generator))
 
 (check (ulid? (g)) => #t)
@@ -13,10 +11,10 @@
   (check (integer? (ulid-timestamp u)) => #t)
   (check (integer? (ulid-randomness u)) => #t)
 
-  (let ((v (ulid->u8vector u)))
-    (check (u8vector? v) => #t)
-    (check (u8vector-length v) => 16)
-    (check (u8vector->ulid v) (=> ulid=?) u))
+  (let ((v (ulid->bytevector u)))
+    (check (bytevector? v) => #t)
+    (check (bytevector-length v) => 16)
+    (check (bytevector->ulid v) (=> ulid=?) u))
 
   (let ((s (ulid->string u)))
     (check (string? s) => #t)
